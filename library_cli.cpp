@@ -1,6 +1,6 @@
 #include <library/library_cli.hpp>
 using namespace std;
-string readList(string url,string branch, string arch,string method){
+string readJSONAPI(string url,string branch, string arch,string method){
         // Создаём клиент и привязываем к домену. Туда пойдут наши запросы
   Client cli(url);
   // Отправляем get-запрос и ждём ответ, который сохраняется в переменной res
@@ -11,7 +11,8 @@ string readList(string url,string branch, string arch,string method){
     if (res->status == 200) {
       // В res->body лежит string с ответом сервера
       std::cout << res->body << std::endl;
-      return res->body;
+      return res->body;       
+           
     }else{
       std::cout << "Status code: " << res->status << std::endl;
       return res->status;
@@ -20,37 +21,36 @@ string readList(string url,string branch, string arch,string method){
   else {
     auto err = res.error();
     std::cout << "Error code: " << err << std::endl;  
-    return err;
+    return res->err;    
   }
 };
 void writeListJSON(string json_str){
     // Парсим строку и получаем объект JSON
   json j = json::parse(json_str);
   // Достаём значения
-  string branch = j["branch"]; cout << "branch " << branch << endl;
-  package pack = j["pack"]; cout << "pack " << endl;
-  string name;
-    int epoch;
-    string version;
-    string release;
-    string arch;
-    string disttag;
-    int buildtime;
-    string source;
-  cout << "name " << j["pack"].name<< endl;
-  cout << "epoch " << j["pack"].epoch<< endl;
-  cout << "version " << j["pack"].version<< endl;
-  cout << "release " << j["pack"].release<< endl;
-  cout << "arch " << j["pack"].arch<< endl;
-  cout << "disttag " << j["pack"].disttag<< endl;
-  cout << "buildtime " << j["pack"].buildtime<< endl;
-  cout << "source " << j["pack"].source<< endl;
-  
+  request_args request_args = j["request_args"]; cout << "request_args " << endl;
+  cout << "arch " << j["request_args"]["arch"] << endl;
+  int length = j["length"];
+  cout << "length " << length << endl;
+  list<package> packages = j["packages"]; cout << "packages" << endl;
+  int n = packages.size();
+  for (int i = 0; i < n; i++){
+    cout << "package[" << i+1 << "] = " << endl;
+    cout << "{" << enl;
+    cout << "name " << packages[i].name << endl;
+    cout << "epoch " << packages[i].epoch<< endl;
+    cout << "version " << packages[i].version<< endl;
+    cout << "release " << packages[i].release<< endl;
+    cout << "arch " << packages[i].arch<< endl;
+    cout << "disttag " << packages[i].disttag<< endl;
+    cout << "buildtime " << packages[i].buildtime<< endl;
+    cout << "source " << packages[i].source<< endl; 
+    cout << "}" << enl; 
+  }
 };
 
 bool IsElemInList(list<binary_package> str_list, binary_package pack){
     return find (str_list.begin(), str_list.end(), pack) != str_list.end ();
 };
-void say_hello(){
-    std::cout << "Hello, from test_rest_project!\n";
-};
+
+
