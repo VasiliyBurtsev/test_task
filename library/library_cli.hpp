@@ -3,6 +3,10 @@
 #include <locale>
 #include <vector>
 #include <sstream>
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
 #include <yhirose-cpp-httplib-30b7732/httplib.h>
 using namespace httplib;
 #include <nlohmann/json.hpp>
