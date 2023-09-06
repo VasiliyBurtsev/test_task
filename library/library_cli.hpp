@@ -33,7 +33,7 @@ struct package
 struct list_json
 {
     string branch;
-    package pack;
+    list<package> pack;
 };
 // В этой функции формируем ответ сервера на запрос
 void gen_response(const Request& req, Response& res) {
@@ -75,29 +75,28 @@ auto requestJson = http_client(U(url)).request(methods::GET,uri_builder(U("api")
 				printf("Error exception:%s\n", e.what());
 			};
 };
-void writeListJSON(string json_str){
+list_json writeListJSON(string json_str,string branch){
     // Парсим строку и получаем объект JSON
   json j = json::parse(json_str);
+  list_json ljs;
   // Достаём значения
-  string branch = j["branch"]; cout << "branch " << branch << endl;
-  package pack = j["pack"]; cout << "pack " << endl;
-  string name;
-    int epoch;
-    string version;
-    string release;
-    string arch;
-    string disttag;
-    int buildtime;
-    string source;
-  cout << "name " << j["pack"].name<< endl;
-  cout << "epoch " << j["pack"].epoch<< endl;
-  cout << "version " << j["pack"].version<< endl;
-  cout << "release " << j["pack"].release<< endl;
-  cout << "arch " << j["pack"].arch<< endl;
-  cout << "disttag " << j["pack"].disttag<< endl;
-  cout << "buildtime " << j["pack"].buildtime<< endl;
-  cout << "source " << j["pack"].source<< endl;
-  
+  ljs.branch = branch;
+  cout << "branch " << ljs.branch << endl;
+  ljs.packages = j["pack"]; 
+  int leng = ljs.packages.size();
+  cout << "{ "<< endl;
+  for (int i=0; i < leng; i++){
+	  cout << "name " << ljs.packages[i].name<< endl;
+  	  cout << "epoch " << ljs.packages[i].epoch<< endl;
+  	  cout << "version " << ljs.packages[i].version<< endl;
+  	  cout << "release " << ljs.packages[i].release<< endl;
+  	  cout << "arch " << ljs.packages[i].arch<< endl;
+  	  cout << "disttag " << ljs.packages[i].disttag<< endl;
+  	  cout << "buildtime " << ljs.packages[i].buildtime<< endl;
+  	  cout << "source " << ljs.packages[i].source<< endl;
+  };
+  cout << "}"<< endl;
+  return ljs;
 };
 bool IsReleaseMore(package pack1, package pack2){
 	return pack1.release > pack2.release;
