@@ -7,13 +7,19 @@
 #include <cpprest/filestream.h>
 #include <cpprest/uri.h>
 #include <cpprest/json.h>
-#include <yhirose-cpp-httplib-30b7732/httplib.h>
-using namespace httplib;
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 using namespace std;
+//using namespace library_cli;
+using namespace utility;
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+using namespace concurrency::streams;
+using namespace web::json;
 const string REST_API = "https://rdb.altlinux.org";
-struct binary_package
+struct package
 {
     string name;
     int epoch;
@@ -27,7 +33,7 @@ struct binary_package
 struct list_json
 {
     string branch;
-    binary_package pack;
+    package pack;
 };
 // В этой функции формируем ответ сервера на запрос
 void gen_response(const Request& req, Response& res) {
@@ -93,7 +99,9 @@ void writeListJSON(string json_str){
   cout << "source " << j["pack"].source<< endl;
   
 };
-
+bool IsReleaseMore(package pack1, package pack2){
+	return pack1.release > pack2.release;
+}
 bool IsElemInList(list<binary_package> str_list, binary_package pack){
     return find (str_list.begin(), str_list.end(), pack) != str_list.end ();
 };
