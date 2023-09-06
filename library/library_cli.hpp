@@ -62,7 +62,7 @@ auto requestJson = http_client(U(url)).request(methods::GET,uri_builder(U("api")
 			// Get the data field.
 			.then([](value jsonObject) {
                 
-				return jsonObject[U("packages")];
+				return to_string(jsonObject[U("packages")]);
 			});
 
 			// Parse the user details.
@@ -80,7 +80,7 @@ void writeListJSON(string json_str){
   json j = json::parse(json_str);
   // Достаём значения
   string branch = j["branch"]; cout << "branch " << branch << endl;
-  binary_package pack = j["pack"]; cout << "pack " << endl;
+  package pack = j["pack"]; cout << "pack " << endl;
   string name;
     int epoch;
     string version;
