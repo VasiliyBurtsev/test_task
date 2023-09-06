@@ -3,11 +3,8 @@
 #include <locale>
 #include <vector>
 #include <sstream>
-#include <cpprest/http_client.h>
-#include <cpprest/filestream.h>
-#include <cpprest/uri.h>
-#include <cpprest/json.h>
-
+#include <yhirose-cpp-httplib-30b7732/httplib.h>
+using namespace httplib;
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 using namespace std;
@@ -47,33 +44,28 @@ auto onDataReceived(char* ptr, size_t size, size_t nmemb, void* userdata) -> siz
 
 constexpr auto k_max_buffer_size = 4096;
 string readJSONAPI(string url,string branch, string arch,string method){
-auto requestJson = http_client(U(url)).request(methods::GET,uri_builder(U("api")).append_path(U(method+"/"+branch)).append_query(U("arch"), arch).to_string())
-			// Get the response.
-			.then([](http_response response) {
-				// Check the status code.
-				if (response.status_code() != 200) {
-					throw std::runtime_error("Returned " + to_string(response.status_code()));
-				}
-
-				// Convert the response body to JSON object.
-				return response.extract_json();
-			})
-
-			// Get the data field.
-			.then([](value jsonObject) {
-                
-				return to_string(jsonObject[U("packages")]);
-			});
-
-			// Parse the user details.
-			
-
-			// Wait for the concurrent tasks to finish.
-			try {
-				requestJson.wait();
-			} catch (const exception &e) {
-				printf("Error exception:%s\n", e.what());
-			};
+        // Создаём клиент и привязываем к домену. Туда пойдут наши запросы
+	Client cli(url);
+  // Отправляем get-запрос и ждём ответ, который сохраняется в переменной res
+  auto res = cli.Get("/api/"+method+"/"+branch+"?arch="+arch);
+  // res преобразуется в true, если запрос-ответ прошли без ошибок
+  if (res) {
+    // Проверяем статус ответа, т.к. может быть 404 и другие
+    if (res->status == 200) {
+      // В res->body лежит string с ответом сервера
+      std::cout << res->body << std::endl;
+      return res->body;       
+           
+    }else{
+      std::cout << "Status code: " << res->status << std::endl;
+      return "";
+    }
+  }
+  else {
+    auto err = res.error();
+    std::cout << "Error code: " << err << std::endl;  
+    return "";
+  }
 };
 list_json writeListJSON(string json_str,string branch){
     // Парсим строку и получаем объект JSON
